@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const { signIn, register } = require("./src/controllers/authController");
+const {signIn,register} = require("./src/controllers/authController/authController")
 const dotenv= require("dotenv")
 dotenv.config()
 

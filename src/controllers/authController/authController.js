@@ -1,30 +1,36 @@
 const bcrypt = require("bcrypt");
-const prisma = require("../../db/prisma");
-
+const prisma = require("../../../db/prisma");
+const jwt = require("jsonwebtoken");
+const secretKey = "your_secret_key";
 const signIn = async (req, res) => {
   const { email, password } = req.body;
 
   try {
     const data = await prisma.user.findMany({
-          where: {
-            email: email, 
-          },
-        });
+      where: {
+        email: email,
+      },
+    });
 
     const user = data;
     if (user?.length === 0) {
       res.status(400).json({
         message: "User is not registered, Sign Up first",
-        status:false
+        status: false,
       });
     } else {
       const passwordMatch = await bcrypt.compare(password, user[0]?.password);
       if (passwordMatch) {
-        res.status(200).json({ message: "Signin successful", user, status:true });
+        const token = jwt.sign(
+          { userId: user[0].id, username: user[0].email },
+          process.env.SECRET_KEY,
+          { expiresIn: "1h" }
+        );
+        res.json({ token, username:user[0]?.name, message:"Signed In successfully"});
       } else {
         res.status(401).json({
-          error: "Invalid password",
-          status:false
+          message: "Invalid password",
+          status: false,
         });
       }
     }
@@ -44,11 +50,11 @@ const register = async (req, res) => {
         email: email,
       },
     });
-    console.log("existingUser", existingUser);
 
-    if (existingUser.length > 0) {
+    if (existingUser?.length > 0) {
       return res.status(400).json({
-        error: "User is already registered",
+        message: "User is already registered",
+        status: false,
       });
     }
     const saltRound = 10;
@@ -62,9 +68,11 @@ const register = async (req, res) => {
       },
     });
 
-    return res
-      .status(200)
-      .json({ message: "Registration successful", data: userData });
+    return res.status(200).json({
+      message: "Registration successful",
+      data: userData,
+      status: true,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -73,6 +81,4 @@ const register = async (req, res) => {
   }
 };
 
-
-
-module.exports = { signIn, register };
+module.exports = { signIn, register};
