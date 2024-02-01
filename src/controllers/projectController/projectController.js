@@ -25,32 +25,17 @@ const getProject = async (req, res) => {
   const { skip, limit } = req.body;
   const page = limit ? limit : 10;
   try {
-    // const data = await prisma.project.findMany({
-    //   skip: skip,
-    //   take: page,
-    //   where: {
-    //     status: true,
-    //   },
-    // });
-    // const count = prisma.project.count({
-    //   where: {
-    //     status: true,
-    //     // other conditions if needed
-    //   },
-    // });
     const [data, totalCount] = await Promise.all([
       prisma.project.findMany({
-        skip: 1,
+        skip: skip,
         take: page,
         where: {
           status: true,
-          // other conditions if needed
         },
       }),
       prisma.project.count({
         where: {
           status: true,
-          // other conditions if needed
         },
       }),
     ]);
@@ -69,4 +54,35 @@ const getProject = async (req, res) => {
   }
 };
 
-module.exports = { createProject, getProject };
+const deleteProject = async (req, res) => {
+  const { id } = req.params;
+  console.log("idd", id)
+  try {
+    const deletedProject = await prisma.project.delete({
+      where: {
+        id: parseInt(id),
+      },
+    });
+
+    if (!deletedProject) {
+      return res.status(404).json({
+        message: "Project not found",
+        status: false,
+      });
+    }
+
+    return res.status(200).json({
+      message: "Project deleted successfully",
+      data: deletedProject,
+      status: true,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Database error occurred while deleting!",
+    });
+  }
+};
+
+
+module.exports = { createProject, getProject,deleteProject };

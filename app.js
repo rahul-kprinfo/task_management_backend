@@ -1,11 +1,18 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const {signIn,register} = require("./src/controllers/authController/authController")
-const { createProject, getProject } = require("./src/controllers/projectController/projectController");
-const dotenv= require("dotenv");
+const {
+  signIn,
+  register,
+} = require("./src/controllers/authController/authController");
+const {
+  createProject,
+  getProject,
+  deleteProject,
+} = require("./src/controllers/projectController/projectController");
+const dotenv = require("dotenv");
 
-dotenv.config()
+dotenv.config();
 
 const app = express();
 const PORT = 3000;
@@ -17,11 +24,11 @@ app.get("/", (req, res) => {
   res.send("Welcome to root URL of Server");
 });
 
-app.post('/signin', signIn);
-
-app.post('/register', register);
-app.post('/create-project', createProject);
-app.get('/get-project', getProject);
+app.post("/signin", signIn);
+app.post("/register", register);
+app.post("/create-project", createProject);
+app.post("/get-project", getProject);
+app.delete("/delete-project/:id", deleteProject);
 
 app.listen(PORT, (error) => {
   if (!error) {
