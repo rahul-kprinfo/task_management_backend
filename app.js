@@ -2,7 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const {signIn,register} = require("./src/controllers/authController/authController")
-const dotenv= require("dotenv")
+const { createProject, getProject } = require("./src/controllers/projectController/projectController");
+const dotenv= require("dotenv");
+
 dotenv.config()
 
 const app = express();
@@ -18,6 +20,8 @@ app.get("/", (req, res) => {
 app.post('/signin', signIn);
 
 app.post('/register', register);
+app.post('/create-project', createProject);
+app.get('/get-project', getProject);
 
 app.listen(PORT, (error) => {
   if (!error) {

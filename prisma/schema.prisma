@@ -17,3 +17,10 @@ model User {
   email    String
   password String
 }
+
+model Project {
+  id           Int      @id @default(autoincrement())
+  projectName  String
+  status       Boolean  @default(true) 
+  createdAt    DateTime @default(now())
+}
