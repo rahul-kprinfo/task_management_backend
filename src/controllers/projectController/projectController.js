@@ -2,25 +2,41 @@ const prisma = require("../../../db/prisma");
 
 const createProject = async (req, res) => {
   const { projectName } = req.body;
+
   try {
-    const data = await prisma.project.create({
+    const duplicateProjects = await prisma.project.findMany({
+      where: {
+        projectName: projectName,
+      },
+    });
+
+    if (duplicateProjects.length > 0) {
+      return res.status(409).json({
+        status: false,
+        message: "The project has already been created.",
+      });
+    }
+
+    const createdProject = await prisma.project.create({
       data: {
         projectName: projectName,
       },
     });
 
-    return res.status(200).json({
-      message: "Project created successfully",
-      data: data,
+    return res.status(201).json({
       status: true,
+      message: "Project created successfully",
+      data: createdProject,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error creating project:", error);
     res.status(500).json({
+      status: false,
       error: "Database error occurred while creating!",
     });
   }
 };
+
 const getProject = async (req, res) => {
   const { skip, limit } = req.body;
   const page = limit ? limit : 10;
@@ -31,6 +47,9 @@ const getProject = async (req, res) => {
         take: page,
         where: {
           status: true,
+        },
+        orderBy: {
+          createdAt: "desc",
         },
       }),
       prisma.project.count({
@@ -56,7 +75,6 @@ const getProject = async (req, res) => {
 
 const deleteProject = async (req, res) => {
   const { id } = req.params;
-  console.log("idd", id)
   try {
     const deletedProject = await prisma.project.delete({
       where: {
@@ -84,5 +102,53 @@ const deleteProject = async (req, res) => {
   }
 };
 
+const updateProject = async (req, res) => {
+  const { id } = req.params;
+  const { projectName } = req.body;
 
-module.exports = { createProject, getProject,deleteProject };
+  try {
+    const duplicateProjects = await prisma.project.findMany({
+      where: {
+        projectName: projectName,
+      },
+    });
+
+    if (duplicateProjects.length > 0) {
+      return res.status(409).json({
+        status: false,
+        message: "The project has already been created.",
+      });
+    }
+
+    const updatedProject = await prisma.project.update({
+      where: {
+        id: parseInt(id),
+      },
+      data: {
+        projectName: projectName,
+      },
+    });
+
+    return res.status(200).json({
+      status: true,
+      message: "Project updated successfully",
+      data: updatedProject,
+    });
+  } catch (error) {
+    console.error("Error updating project:", error);
+
+    if (error.code === "P2025") {
+      return res.status(404).json({
+        status: false,
+        message: "Project not found",
+      });
+    }
+
+    return res.status(500).json({
+      status: false,
+      error: "Database error occurred while updating!",
+    });
+  }
+};
+
+module.exports = { createProject, getProject, deleteProject, updateProject };

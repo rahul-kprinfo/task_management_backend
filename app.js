@@ -9,6 +9,7 @@ const {
   createProject,
   getProject,
   deleteProject,
+  updateProject,
 } = require("./src/controllers/projectController/projectController");
 const dotenv = require("dotenv");
 
@@ -29,6 +30,7 @@ app.post("/register", register);
 app.post("/create-project", createProject);
 app.post("/get-project", getProject);
 app.delete("/delete-project/:id", deleteProject);
+app.patch("/update-project/:id", updateProject);
 
 app.listen(PORT, (error) => {
   if (!error) {

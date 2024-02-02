@@ -26,7 +26,12 @@ const signIn = async (req, res) => {
           process.env.SECRET_KEY,
           { expiresIn: "1h" }
         );
-        res.json({ token, username:user[0]?.name, message:"Signed In successfully"});
+        res.json({
+          token,
+          username: user[0]?.name,
+          email: user[0]?.email,
+          message: "Signed In successfully",
+        });
       } else {
         res.status(401).json({
           message: "Invalid password",
@@ -81,4 +86,4 @@ const register = async (req, res) => {
   }
 };
 
-module.exports = { signIn, register};
+module.exports = { signIn, register };
