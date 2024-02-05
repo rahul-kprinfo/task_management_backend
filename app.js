@@ -12,6 +12,12 @@ const {
   updateProject,
 } = require("./src/controllers/projectController/projectController");
 const dotenv = require("dotenv");
+const {
+  createProjectUser,
+  getProjectUsers,
+  deleteProjectUser,
+  updateProjectUser,
+} = require("./src/controllers/userController/userController");
 
 dotenv.config();
 
@@ -31,6 +37,10 @@ app.post("/create-project", createProject);
 app.post("/get-project", getProject);
 app.delete("/delete-project/:id", deleteProject);
 app.patch("/update-project/:id", updateProject);
+app.post("/create-user", createProjectUser);
+app.get("/get-users", getProjectUsers);
+app.delete("/delete-user/:id", deleteProjectUser);
+app.patch("/update-users/:id", updateProjectUser);
 
 app.listen(PORT, (error) => {
   if (!error) {
