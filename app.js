@@ -18,6 +18,12 @@ const {
   deleteProjectUser,
   updateProjectUser,
 } = require("./src/controllers/userController/userController");
+const {
+  createTask,
+  getTasks,
+  deleteTask,
+  updateTask,
+} = require("./src/controllers/taskController/taskController");
 
 dotenv.config();
 
@@ -38,9 +44,13 @@ app.post("/get-project", getProject);
 app.delete("/delete-project/:id", deleteProject);
 app.patch("/update-project/:id", updateProject);
 app.post("/create-user", createProjectUser);
-app.get("/get-users", getProjectUsers);
+app.post("/get-users", getProjectUsers);
 app.delete("/delete-user/:id", deleteProjectUser);
-app.patch("/update-users/:id", updateProjectUser);
+app.patch("/update-user/:id", updateProjectUser);
+app.post("/create-task", createTask);
+app.get("/get-task", getTasks);
+app.delete("/delete-task/:id", deleteTask);
+app.patch("/update-task/:id", updateTask);
 
 app.listen(PORT, (error) => {
   if (!error) {
