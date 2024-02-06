@@ -76,6 +76,17 @@ const getProject = async (req, res) => {
 const deleteProject = async (req, res) => {
   const { id } = req.params;
   try {
+    const deleteTask = await prisma.task.deleteMany({
+      where: {
+        projectId: parseInt(id),
+      },
+    });
+    const deleteUser = await prisma.projectUser.deleteMany({
+      where: {
+        projectId: parseInt(id),
+      },
+    });
+
     const deletedProject = await prisma.project.delete({
       where: {
         id: parseInt(id),

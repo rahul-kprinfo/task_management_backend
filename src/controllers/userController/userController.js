@@ -14,7 +14,7 @@ const createProjectUser = async (req, res) => {
     if (duplicateProjectUsers.length > 0) {
       return res.status(409).json({
         status: false,
-        message: "The project user already exists for the specified project.",
+        message: "This user already exists for the specified project.",
       });
     }
 
@@ -50,24 +50,24 @@ const getProjectUsers = async (req, res) => {
       prisma.projectUser.findMany({
         skip: skip,
         take: page,
-        // where: {
-        //   projectId: projectId,
-        // },
-        // orderBy: {
-        //   createdAt: "desc",
-        // },
+        where: {
+          projectId: projectId,
+        },
+        orderBy: {
+          id: "desc",
+        },
       }),
-      //   prisma.projectUser.count({
-      //     where: {
-      //       projectId: projectId,
-      //     },
-      //   }),
+      prisma.projectUser.count({
+        where: {
+          projectId: projectId,
+        },
+      }),
     ]);
 
     return res.status(200).json({
       message: "Success",
       data: data,
-      //   totalCount: totalCount,
+      totalCount: totalCount,
       status: true,
     });
   } catch (error) {
@@ -82,6 +82,18 @@ const deleteProjectUser = async (req, res) => {
   const { id } = req.params;
 
   try {
+    const existingTask = await prisma.task.findMany({
+      where: {
+        projectUserId: parseInt(id),
+      },
+    });
+    if (existingTask?.length > 0) {
+      return res.status(404).json({
+        message: "The task assigned to this user cannot be deleted",
+        status: false,
+      });
+    }
+
     const deletedProjectUser = await prisma.projectUser.delete({
       where: {
         id: parseInt(id),

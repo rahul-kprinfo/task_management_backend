@@ -1,7 +1,15 @@
 const prisma = require("../../../db/prisma");
 
 const createTask = async (req, res) => {
-  const { taskName, description, priority, user, projectId } = req.body;
+  const {
+    taskName,
+    description,
+    priority,
+    user,
+    projectId,
+    estimation,
+    projectUserId,
+  } = req.body;
 
   try {
     const createdTask = await prisma.task.create({
@@ -11,6 +19,8 @@ const createTask = async (req, res) => {
         priority: priority,
         user: user,
         projectId: projectId,
+        estimation: estimation,
+        projectUserId: projectUserId,
       },
     });
 
@@ -97,7 +107,8 @@ const deleteTask = async (req, res) => {
 
 const updateTask = async (req, res) => {
   const { id } = req.params;
-  const { taskName, description, priority, user, projectId } = req.body;
+  const { taskName, description, priority, user, projectId, projectUserId } =
+    req.body;
 
   try {
     const updatedTask = await prisma.task.update({
@@ -110,6 +121,7 @@ const updateTask = async (req, res) => {
         priority: priority,
         user: user,
         projectId: projectId,
+        projectUserId: projectUserId,
       },
     });
 

@@ -48,7 +48,7 @@ app.post("/get-users", getProjectUsers);
 app.delete("/delete-user/:id", deleteProjectUser);
 app.patch("/update-user/:id", updateProjectUser);
 app.post("/create-task", createTask);
-app.get("/get-task", getTasks);
+app.post("/get-task", getTasks);
 app.delete("/delete-task/:id", deleteTask);
 app.patch("/update-task/:id", updateTask);
 
