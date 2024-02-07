@@ -23,6 +23,7 @@ const {
   getTasks,
   deleteTask,
   updateTask,
+  getOneTask,
 } = require("./src/controllers/taskController/taskController");
 
 dotenv.config();
@@ -51,6 +52,7 @@ app.post("/create-task", createTask);
 app.post("/get-task", getTasks);
 app.delete("/delete-task/:id", deleteTask);
 app.patch("/update-task/:id", updateTask);
+app.get("/get-task-by-id/:id", getOneTask);
 
 app.listen(PORT, (error) => {
   if (!error) {

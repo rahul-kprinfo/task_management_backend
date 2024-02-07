@@ -9,6 +9,8 @@ const createTask = async (req, res) => {
     projectId,
     estimation,
     projectUserId,
+    parentTaskId,
+    taskStatus,
   } = req.body;
 
   try {
@@ -21,6 +23,8 @@ const createTask = async (req, res) => {
         projectId: projectId,
         estimation: estimation,
         projectUserId: projectUserId,
+        parentTaskId: parentTaskId,
+        taskStatus: taskStatus,
       },
     });
 
@@ -75,6 +79,35 @@ const getTasks = async (req, res) => {
   }
 };
 
+const getOneTask = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const data = await prisma.task.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+    });
+
+    const getChildData = await prisma.task.findMany({
+      where: {
+        parentTaskId: parseInt(id),
+      },
+    });
+
+    return res.status(200).json({
+      message: "Success",
+      data: { data, childData: getChildData },
+      status: true,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Database error occurred while getting tasks!",
+    });
+  }
+};
+
 const deleteTask = async (req, res) => {
   const { id } = req.params;
 
@@ -82,6 +115,11 @@ const deleteTask = async (req, res) => {
     const deletedTask = await prisma.task.delete({
       where: {
         id: parseInt(id),
+      },
+    });
+    const deleteChildTask = await prisma.task.deleteMany({
+      where: {
+        parentTaskId: parseInt(id),
       },
     });
 
@@ -107,8 +145,16 @@ const deleteTask = async (req, res) => {
 
 const updateTask = async (req, res) => {
   const { id } = req.params;
-  const { taskName, description, priority, user, projectId, projectUserId } =
-    req.body;
+  const {
+    taskName,
+    description,
+    priority,
+    user,
+    projectId,
+    projectUserId,
+    parentTaskId,
+    taskStatus,
+  } = req.body;
 
   try {
     const updatedTask = await prisma.task.update({
@@ -122,6 +168,8 @@ const updateTask = async (req, res) => {
         user: user,
         projectId: projectId,
         projectUserId: projectUserId,
+        parentTaskId: parentTaskId,
+        taskStatus: taskStatus,
       },
     });
 
@@ -152,4 +200,5 @@ module.exports = {
   getTasks,
   deleteTask,
   updateTask,
+  getOneTask,
 };

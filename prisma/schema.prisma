@@ -35,7 +35,9 @@ model Task {
   description String?
   priority    String
   user        String
+  taskStatus  String
   projectUserId  Int
+  parentTaskId   Int?
   estimation  String
   status      Boolean  @default(true)
   createdAt   DateTime @default(now())
