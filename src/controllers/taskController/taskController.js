@@ -11,6 +11,7 @@ const createTask = async (req, res) => {
     projectUserId,
     parentTaskId,
     taskStatus,
+    childTaskId,
   } = req.body;
 
   try {
@@ -25,6 +26,7 @@ const createTask = async (req, res) => {
         projectUserId: projectUserId,
         parentTaskId: parentTaskId,
         taskStatus: taskStatus,
+        childTaskId: childTaskId,
       },
     });
 
@@ -89,11 +91,22 @@ const getOneTask = async (req, res) => {
       },
     });
 
-    const getChildData = await prisma.task.findMany({
+    const getChildData1 = await prisma.task.findMany({
       where: {
         parentTaskId: parseInt(id),
       },
     });
+
+    const ids = data?.childTaskId;
+    const getChildData2 = await prisma.task.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
+
+    const getChildData = [...getChildData1, ...getChildData2];
 
     return res.status(200).json({
       message: "Success",
@@ -154,6 +167,7 @@ const updateTask = async (req, res) => {
     projectUserId,
     parentTaskId,
     taskStatus,
+    childTaskId,
   } = req.body;
 
   try {
@@ -170,6 +184,7 @@ const updateTask = async (req, res) => {
         projectUserId: projectUserId,
         parentTaskId: parentTaskId,
         taskStatus: taskStatus,
+        childTaskId: childTaskId,
       },
     });
 

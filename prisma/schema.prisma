@@ -38,6 +38,7 @@ model Task {
   taskStatus  String
   projectUserId  Int
   parentTaskId   Int?
+  childTaskId   Int[]
   estimation  String
   status      Boolean  @default(true)
   createdAt   DateTime @default(now())
