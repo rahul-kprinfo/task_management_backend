@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const prisma = require("../../../db/prisma");
 const jwt = require("jsonwebtoken");
 const secretKey = "your_secret_key";
-const signIn = async (req, res) => {
+exports.signIn = async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -47,7 +47,7 @@ const signIn = async (req, res) => {
   }
 };
 
-const register = async (req, res) => {
+exports.register = async (req, res) => {
   const { name, email, password } = req.body;
   try {
     const existingUser = await prisma.user.findMany({
@@ -85,5 +85,3 @@ const register = async (req, res) => {
     });
   }
 };
-
-module.exports = { signIn, register };

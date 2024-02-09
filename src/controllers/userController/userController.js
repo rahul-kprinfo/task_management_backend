@@ -1,6 +1,6 @@
 const prisma = require("../../../db/prisma");
 
-const createProjectUser = async (req, res) => {
+exports.createProjectUser = async (req, res) => {
   const { name, email, role, projectId } = req.body;
 
   try {
@@ -41,7 +41,7 @@ const createProjectUser = async (req, res) => {
   }
 };
 
-const getProjectUsers = async (req, res) => {
+exports.getProjectUsers = async (req, res) => {
   const { projectId, skip, limit } = req.body;
   const page = limit ? limit : 10;
 
@@ -78,7 +78,7 @@ const getProjectUsers = async (req, res) => {
   }
 };
 
-const deleteProjectUser = async (req, res) => {
+exports.deleteProjectUser = async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -120,7 +120,7 @@ const deleteProjectUser = async (req, res) => {
   }
 };
 
-const updateProjectUser = async (req, res) => {
+exports.updateProjectUser = async (req, res) => {
   const { id } = req.params;
   const { name, email, role, projectId } = req.body;
 
@@ -174,11 +174,4 @@ const updateProjectUser = async (req, res) => {
       error: "Database error occurred while updating project user!",
     });
   }
-};
-
-module.exports = {
-  createProjectUser,
-  getProjectUsers,
-  deleteProjectUser,
-  updateProjectUser,
 };

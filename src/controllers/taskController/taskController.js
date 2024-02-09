@@ -1,7 +1,7 @@
 const prisma = require("../../../db/prisma");
 const _ = require("lodash");
 
-const createTask = async (req, res) => {
+exports.createTask = async (req, res) => {
   const {
     taskName,
     description,
@@ -45,7 +45,7 @@ const createTask = async (req, res) => {
   }
 };
 
-const getTasks = async (req, res) => {
+exports.getTasks = async (req, res) => {
   const { projectId, skip, limit } = req.body;
   const page = limit ? limit : 10;
 
@@ -82,7 +82,7 @@ const getTasks = async (req, res) => {
   }
 };
 
-const getOneTask = async (req, res) => {
+exports.getOneTask = async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -123,7 +123,7 @@ const getOneTask = async (req, res) => {
   }
 };
 
-const deleteTask = async (req, res) => {
+exports.deleteTask = async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -158,7 +158,7 @@ const deleteTask = async (req, res) => {
   }
 };
 
-const updateTask = async (req, res) => {
+exports.updateTask = async (req, res) => {
   const { id } = req.params;
   const {
     taskName,
@@ -210,12 +210,4 @@ const updateTask = async (req, res) => {
       error: "Database error occurred while updating task!",
     });
   }
-};
-
-module.exports = {
-  createTask,
-  getTasks,
-  deleteTask,
-  updateTask,
-  getOneTask,
 };

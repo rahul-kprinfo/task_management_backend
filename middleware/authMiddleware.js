@@ -1,18 +1,17 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
-const secretKey = 'your_secret_key';
+// const secretKey = "your_secret_key";
 
-// Middleware to verify JWT token
 const verifyToken = (req, res, next) => {
-  const token = req.headers['authorization'];
+  const token = req.headers["authorization"];
 
   if (!token) {
-    return res.status(401).json({ message: 'Unauthorized' });
+    return res.status(401).json({ message: "Unauthorized" });
   }
 
-  jwt.verify(token, secretKey, (err, user) => {
+  jwt.verify(token, process.env.SECRET_KEY, (err, user) => {
     if (err) {
-      return res.status(403).json({ message: 'Forbidden' });
+      return res.status(403).json({ message: "Forbidden" });
     }
 
     req.user = user;
@@ -20,4 +19,4 @@ const verifyToken = (req, res, next) => {
   });
 };
 
-module.exports = { verifyToken };
+module.exports = verifyToken;

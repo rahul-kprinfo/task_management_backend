@@ -1,6 +1,6 @@
 const prisma = require("../../../db/prisma");
 
-const createProject = async (req, res) => {
+exports.createProject = async (req, res) => {
   const { projectName } = req.body;
 
   try {
@@ -37,7 +37,7 @@ const createProject = async (req, res) => {
   }
 };
 
-const getProject = async (req, res) => {
+exports.getProject = async (req, res) => {
   const { skip, limit } = req.body;
   const page = limit ? limit : 10;
   try {
@@ -73,7 +73,7 @@ const getProject = async (req, res) => {
   }
 };
 
-const deleteProject = async (req, res) => {
+exports.deleteProject = async (req, res) => {
   const { id } = req.params;
   try {
     const deleteTask = await prisma.task.deleteMany({
@@ -113,7 +113,7 @@ const deleteProject = async (req, res) => {
   }
 };
 
-const updateProject = async (req, res) => {
+exports.updateProject = async (req, res) => {
   const { id } = req.params;
   const { projectName } = req.body;
 
@@ -162,4 +162,11 @@ const updateProject = async (req, res) => {
   }
 };
 
-module.exports = { createProject, getProject, deleteProject, updateProject };
+// const projectControllers = {
+//   createProject,
+//   getProject,
+//   deleteProject,
+//   updateProject,
+// };
+
+// module.exports = projectControllers;
