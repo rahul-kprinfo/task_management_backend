@@ -85,3 +85,72 @@ exports.register = async (req, res) => {
     });
   }
 };
+
+exports.verifyEmail = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const existingUser = await prisma.user.findMany({
+      where: {
+        email: email,
+      },
+    });
+
+    if (existingUser?.length === 0) {
+      return res.status(400).json({
+        message: "User not found",
+        status: false,
+      });
+    }
+
+    return res.status(200).json({
+      message: "Email verified",
+      data: existingUser,
+      status: true,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Database error occurred while verifying email!",
+    });
+  }
+};
+
+exports.forgotPassword = async (req, res) => {
+  const { id, email, newPassword, confirmPassword } = req.body;
+  try {
+    // const user = await prisma.user.findUnique({
+    //   where: {
+    //     email: email,
+    //   },
+    // });
+
+    // if (!user) {
+    //   return res.status(404).json({
+    //     message: "User not found",
+    //     status: false,
+    //   });
+    // }
+
+    const saltRound = 10;
+    const hashedNewPassword = await bcrypt.hash(newPassword, saltRound);
+
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: parseInt(id),
+      },
+      data: {
+        password: hashedNewPassword,
+      },
+    });
+
+    return res.status(200).json({
+      message: "Password changed successfully",
+      status: true,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "An error occurred while changing password",
+    });
+  }
+};
