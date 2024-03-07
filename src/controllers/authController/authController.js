@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const prisma = require("../../../db/prisma");
 const jwt = require("jsonwebtoken");
+const cron = require("node-cron");
 const secretKey = "your_secret_key";
 exports.signIn = async (req, res) => {
   const { email, password } = req.body;
@@ -18,6 +19,12 @@ exports.signIn = async (req, res) => {
         message: "User is not registered, Sign Up first",
         status: false,
       });
+    } else if (user?.[0].active === false) {
+      res.status(400).json({
+        message:
+          "User account is inactive. Please activate your account first.",
+        status: false,
+      });
     } else {
       const passwordMatch = await bcrypt.compare(password, user[0]?.password);
       if (passwordMatch) {
@@ -26,6 +33,12 @@ exports.signIn = async (req, res) => {
           process.env.SECRET_KEY,
           { expiresIn: "1h" }
         );
+
+        await prisma.user.update({
+          where: { id: user[0].id },
+          data: { lastLoginAt: new Date() },
+        });
+
         res.json({
           token,
           username: user[0]?.name,
@@ -116,30 +129,18 @@ exports.verifyEmail = async (req, res) => {
 };
 
 exports.forgotPassword = async (req, res) => {
-  const { id, email, newPassword, confirmPassword } = req.body;
+  const { id, newPassword } = req.body;
   try {
-    // const user = await prisma.user.findUnique({
-    //   where: {
-    //     email: email,
-    //   },
-    // });
-
-    // if (!user) {
-    //   return res.status(404).json({
-    //     message: "User not found",
-    //     status: false,
-    //   });
-    // }
-
     const saltRound = 10;
     const hashedNewPassword = await bcrypt.hash(newPassword, saltRound);
 
-    const updatedUser = await prisma.user.update({
+    await prisma.user.update({
       where: {
         id: parseInt(id),
       },
       data: {
         password: hashedNewPassword,
+        active: true,
       },
     });
 
@@ -154,3 +155,31 @@ exports.forgotPassword = async (req, res) => {
     });
   }
 };
+
+// Function to de-activate for inactive users
+async function deactivateInactiveUsers() {
+  try {
+    const inactiveUsers = await prisma.user.findMany({
+      where: {
+        lastLoginAt: {
+          lt: new Date(Date.now() - 60 * 1000),
+        },
+      },
+    });
+
+    for (const user of inactiveUsers) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { active: false },
+      });
+
+      console.log(`User ${user.name} deactivated`);
+    }
+
+    console.log(`${inactiveUsers.length} inactive users.`);
+  } catch (error) {
+    console.error("Error while de-activating user:", error);
+  }
+}
+
+cron.schedule("0 0 * * *", deactivateInactiveUsers); // this will run every minute

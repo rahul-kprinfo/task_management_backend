@@ -16,6 +16,8 @@ model User {
   name     String
   email    String
   password String
+  lastLoginAt DateTime?
+  active   Boolean  @default(true)
 }
 
 
