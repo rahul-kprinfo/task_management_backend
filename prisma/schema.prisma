@@ -18,8 +18,16 @@ model User {
   password String
   lastLoginAt DateTime?
   active   Boolean  @default(true)
+  sessions Session[]
 }
 
+model Session {
+  id            Int       @id @default(autoincrement())
+  sessionId     String
+  userId        Int
+  user          User      @relation(fields: [userId], references: [id])
+  createdAt     DateTime   @default(now()) // You might want to include a timestamp for when the session was created
+}
 
 model Project {
   id           Int      @id @default(autoincrement())

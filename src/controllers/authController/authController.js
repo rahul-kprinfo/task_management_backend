@@ -2,7 +2,70 @@ const bcrypt = require("bcrypt");
 const prisma = require("../../../db/prisma");
 const jwt = require("jsonwebtoken");
 const cron = require("node-cron");
-const secretKey = "your_secret_key";
+const { v4: uuidv4 } = require("uuid");
+const io = require("../../../app");
+
+function generateSessionId() {
+  return uuidv4();
+}
+
+// exports.signIn = async (req, res) => {
+//   const { email, password } = req.body;
+
+//   try {
+//     const data = await prisma.user.findMany({
+//       where: {
+//         email: email,
+//       },
+//     });
+
+//     const user = data;
+//     if (user?.length === 0) {
+//       res.status(400).json({
+//         message: "User is not registered, Sign Up first",
+//         status: false,
+//       });
+//     } else if (user?.[0].active === false) {
+//       res.status(400).json({
+//         message:
+//           "User account is inactive. Please activate your account first.",
+//         status: false,
+//       });
+//     } else {
+//       const passwordMatch = await bcrypt.compare(password, user[0]?.password);
+//       if (passwordMatch) {
+//         const token = jwt.sign(
+//           { userId: user[0].id, username: user[0].email },
+//           process.env.SECRET_KEY,
+//           { expiresIn: "1h" }
+//         );
+
+//         await prisma.user.update({
+//           where: { id: user[0].id },
+//           data: { lastLoginAt: new Date() },
+//         });
+
+//         res.json({
+//           token,
+//           username: user[0]?.name,
+//           email: user[0]?.email,
+//           message: "Signed In successfully",
+//         });
+//       } else {
+//         res.status(401).json({
+//           message: "Invalid password",
+//           status: false,
+//         });
+//       }
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({
+//       error: "Database error occurred while signing in!",
+//     });
+//   }
+// };
+
 exports.signIn = async (req, res) => {
   const { email, password } = req.body;
 
@@ -28,6 +91,35 @@ exports.signIn = async (req, res) => {
     } else {
       const passwordMatch = await bcrypt.compare(password, user[0]?.password);
       if (passwordMatch) {
+        // io.emit("login", user[0].id);
+        const activeSessions = await prisma.session.findMany({
+          where: {
+            userId: user[0].id,
+            // active: true,
+          },
+        });
+
+        if (activeSessions.length > 0) {
+          return res.status(400).json({
+            message: "User is already logged in elsewhere",
+            activeSessions: user[0]?.id,
+            status: false,
+          });
+        }
+
+        const session = await prisma.session.create({
+          data: {
+            sessionId: generateSessionId(),
+            userId: user[0].id,
+            // active: true,
+          },
+        });
+
+        console.log("activeSessions", session);
+
+        // Set userId in session
+        // req.session.userId = user[0].id;
+
         const token = jwt.sign(
           { userId: user[0].id, username: user[0].email },
           process.env.SECRET_KEY,
@@ -39,10 +131,12 @@ exports.signIn = async (req, res) => {
           data: { lastLoginAt: new Date() },
         });
 
-        res.json({
+        res.status(200).json({
           token,
-          username: user[0]?.name,
+          username: user[0].name,
           email: user[0]?.email,
+          id: user[0]?.id,
+          sessionId: session?.sessionId,
           message: "Signed In successfully",
         });
       } else {
@@ -57,6 +151,45 @@ exports.signIn = async (req, res) => {
     res.status(500).json({
       error: "Database error occurred while signing in!",
     });
+  }
+};
+
+exports.logout = async (req, res) => {
+  const { userId } = req.body;
+  try {
+    await prisma.session.deleteMany({
+      where: {
+        userId: parseInt(userId),
+      },
+    });
+
+    return res.status(200).json({
+      message: "Logged out successfully",
+      status: true,
+    });
+  } catch (error) {
+    console.error("Error deleting session from database:", error);
+    res.status(500).json({ message: "Failed to log out" });
+  }
+};
+
+exports.getSession = async (req, res) => {
+  const { userId } = req.body;
+  try {
+    const sessionId = await prisma.session.findMany({
+      where: {
+        userId: parseInt(userId),
+      },
+    });
+
+    return res.status(200).json({
+      message: "Success",
+      status: true,
+      sessionId: sessionId[0]?.sessionId,
+    });
+  } catch (error) {
+    console.error("Error deleting session from database:", error);
+    res.status(500).json({ message: "Failed to log out" });
   }
 };
 
@@ -98,6 +231,8 @@ exports.register = async (req, res) => {
     });
   }
 };
+
+// Logout route
 
 exports.verifyEmail = async (req, res) => {
   const { email } = req.body;

@@ -58,6 +58,9 @@ exports.getProject = async (req, res) => {
         },
       }),
     ]);
+    const session = await prisma.session.findMany();
+
+    console.log("session", session);
 
     return res.status(200).json({
       message: "Success",
