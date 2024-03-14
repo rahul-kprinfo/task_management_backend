@@ -91,34 +91,32 @@ exports.signIn = async (req, res) => {
     } else {
       const passwordMatch = await bcrypt.compare(password, user[0]?.password);
       if (passwordMatch) {
-        // io.emit("login", user[0].id);
         const activeSessions = await prisma.session.findMany({
           where: {
             userId: user[0].id,
-            // active: true,
           },
         });
 
         if (activeSessions.length > 0) {
-          return res.status(400).json({
-            message: "User is already logged in elsewhere",
-            activeSessions: user[0]?.id,
-            status: false,
-          });
+          // return res.status(400).json({
+          //   message: "User is already logged in elsewhere",
+          //   activeSessions: user[0]?.id,
+          //   status: false,
+          // });
+          return;
         }
 
         const session = await prisma.session.create({
           data: {
             sessionId: generateSessionId(),
             userId: user[0].id,
-            // active: true,
           },
         });
 
-        console.log("activeSessions", session);
-
-        // Set userId in session
-        // req.session.userId = user[0].id;
+        await prisma.user.update({
+          where: { id: user[0].id },
+          data: { sessionId: session.id.toString() }, // Convert session ID to string
+        });
 
         const token = jwt.sign(
           { userId: user[0].id, username: user[0].email },

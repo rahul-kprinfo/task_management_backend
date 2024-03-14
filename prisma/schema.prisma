@@ -12,22 +12,24 @@ datasource db {
 
 
 model User {
-  id       Int @id @default(autoincrement())
-  name     String
-  email    String
-  password String
+  id          Int      @id @default(autoincrement())
+  name        String
+  email       String   @unique
+  password    String
   lastLoginAt DateTime?
-  active   Boolean  @default(true)
-  sessions Session[]
+  active      Boolean  @default(true)
+  sessionId   String?  @unique // Nullable field to store session ID
+  sessions    Session[] // Define the opposite relation field
 }
 
 model Session {
-  id            Int       @id @default(autoincrement())
-  sessionId     String
-  userId        Int
-  user          User      @relation(fields: [userId], references: [id])
-  createdAt     DateTime   @default(now()) // You might want to include a timestamp for when the session was created
+  id        Int      @id @default(autoincrement())
+  sessionId String   @unique // Ensure session IDs are unique
+  userId    Int      // Foreign key referencing the user model
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now()) // Timestamp for when the session was created
 }
+
 
 model Project {
   id           Int      @id @default(autoincrement())

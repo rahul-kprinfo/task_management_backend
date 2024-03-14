@@ -91,32 +91,27 @@ io.on("connection", (socket) => {
           email: email,
         },
       });
+      console.log("user", user);
 
-      if (!user) {
-        // User not found, emit an event to notify the client
-        socket.emit("userNotFound", {
-          message: "User not found",
-        });
+      if (user.length === 0) {
         return;
       }
 
       const activeSessions = await prisma.session.findMany({
         where: {
-          userId: user.id,
+          id: parseInt(user[0].sessionId),
         },
       });
+      console.log("activeSessionssss", activeSessions);
 
-      if (activeSessions.length > 0) {
-        // Notify user on other devices
+      if (activeSessions?.length === 0 || undefined || null) {
+        // Notify user on other
+        return;
+      } else {
         socket.emit("multipleLogin", {
           message: "User is already logged in elsewhere",
         });
         console.log("Multiple logins detected");
-      } else {
-        // No active sessions, proceed with login
-        // socket.emit("proceedWithLogin", {
-        //   userId: user.id,
-        // });
       }
     } catch (error) {
       console.error("Error during login:", error);
@@ -135,11 +130,12 @@ io.on("connection", (socket) => {
       });
       await prisma.session.deleteMany({
         where: {
-          userId: user.id,
+          userId: user[0].id,
         },
       });
 
       socket.emit("proceedWithLogin");
+      io.emit("logout", user[0].id);
     } catch (error) {
       console.error("Error deleting sessions:", error);
     }
