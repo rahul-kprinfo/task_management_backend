@@ -18,8 +18,8 @@ model User {
   password    String
   lastLoginAt DateTime?
   active      Boolean  @default(true)
-  sessionId   String?  @unique // Nullable field to store session ID
-  sessions    Session[] // Define the opposite relation field
+  sessionId   String?  @unique
+  sessions    Session[] 
 }
 
 model Session {
@@ -58,6 +58,16 @@ model Task {
   projectId   Int
   project     Project  @relation(fields: [projectId], references: [id])
   rojectUser     ProjectUser  @relation(fields: [projectUserId], references: [id])
+  comments    Comment[]
+}
+
+model Comment {
+  id         Int       @id @default(autoincrement())
+  content    String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  taskId     Int       // This field references the Task model
+  task       Task      @relation(fields: [taskId], references: [id]) // Many-to-one relationship: Many comments belong to one task
 }
 
 model ProjectUser {

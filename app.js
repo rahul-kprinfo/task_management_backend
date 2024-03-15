@@ -56,7 +56,7 @@ const authRouter = require("./src/routes/authRouter");
 const verifyToken = require("./middleware/authMiddleware");
 const isValidToken = require("./middleware/jwtHelper");
 const prisma = require("./db/prisma");
-const authController = require("./src/routes/authRouter");
+const commentRouter = require("./src/routes/commentRouter");
 
 dotenv.config();
 const app = express();
@@ -72,6 +72,8 @@ app.get("/", (req, res) => {
 app.use("/project", verifyToken, projectRouter);
 app.use("/task", verifyToken, taskRouter);
 app.use("/user", verifyToken, userRouter);
+app.use("/comment", verifyToken, commentRouter);
+
 app.use("/", authRouter);
 
 const server = http.createServer(app);
