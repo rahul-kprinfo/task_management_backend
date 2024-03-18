@@ -164,12 +164,3 @@ exports.updateProject = async (req, res) => {
     });
   }
 };
-
-// const projectControllers = {
-//   createProject,
-//   getProject,
-//   deleteProject,
-//   updateProject,
-// };
-
-// module.exports = projectControllers;

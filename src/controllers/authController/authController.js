@@ -98,11 +98,6 @@ exports.signIn = async (req, res) => {
         });
 
         if (activeSessions.length > 0) {
-          // return res.status(400).json({
-          //   message: "User is already logged in elsewhere",
-          //   activeSessions: user[0]?.id,
-          //   status: false,
-          // });
           return;
         }
 
@@ -121,7 +116,7 @@ exports.signIn = async (req, res) => {
         const token = jwt.sign(
           { userId: user[0].id, username: user[0].email },
           process.env.SECRET_KEY,
-          { expiresIn: "1h" }
+          { expiresIn: "7d" }
         );
 
         await prisma.user.update({
