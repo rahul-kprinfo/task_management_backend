@@ -54,6 +54,19 @@ exports.updateComment = async (req, res) => {
   const { content, userName } = req.body;
 
   try {
+    const getComment = await prisma.comment.findUnique({
+      where: {
+        id: parseInt(id),
+        userName: userName,
+      },
+    });
+    if (!getComment) {
+      return res.status(500).json({
+        message: "You don't have access to update this comment",
+        status: false,
+      });
+    }
+
     const updatedComment = await prisma.comment.update({
       where: {
         id: parseInt(id),
@@ -66,7 +79,7 @@ exports.updateComment = async (req, res) => {
 
     return res.status(200).json({
       message: "Comment updated successfully",
-      data: comments, // Sending all comments associated with the task
+      data: updatedComment, // Sending all comments associated with the task
       status: true,
     });
   } catch (error) {
@@ -78,11 +91,27 @@ exports.updateComment = async (req, res) => {
 };
 
 exports.deleteComment = async (req, res) => {
-  const { id } = req.params;
+  const { id, userName } = req.params;
+  // const { userName } = req.body;
+  console.log("userName", userName);
   try {
+    const getComment = await prisma.comment.findUnique({
+      where: {
+        id: parseInt(id),
+        userName: userName,
+      },
+    });
+    if (!getComment) {
+      return res.status(500).json({
+        message: "You don't have access to delete this comment",
+        status: false,
+      });
+    }
+
     const deletedComment = await prisma.comment.delete({
       where: {
         id: parseInt(id),
+        userName: userName,
       },
     });
 
